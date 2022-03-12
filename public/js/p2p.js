@@ -1,5 +1,3 @@
-const PRE = "DELTA"
-const SUF = "MEET"
 var room_id;
 var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 var local_stream;
@@ -17,7 +15,7 @@ function createRoom() {
         alert("Please enter room number")
         return;
     }
-    room_id = PRE + room + SUF;
+    room_id = room;
     peer = new Peer(room_id)
     peer.on('open', (id) => {
         console.log("Peer Connected with ID: ", id)
@@ -71,7 +69,7 @@ function joinRoom() {
         alert("Please enter room number")
         return;
     }
-    room_id = PRE + room + SUF;
+    room_id = room;
     hideModal()
     peer = new Peer()
     peer.on('open', (id) => {
@@ -86,7 +84,7 @@ function joinRoom() {
             })
             currentPeer = call;
         }, (err) => {
-            console.log(err)
+            console.log(err);
         })
 
     })

@@ -1,22 +1,22 @@
 @extends('layouts.chat_layout')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center my-5">
-        <p id="notification" hidden></p>
+<div id="app"></div>
 
-        <div class="row card card-body" id="entry-modal">
-            <h5 class="card-title">Create or Join Meeting</h5>
-            <div class="my-3">
-                <input id="room-input" class="form-control"  placeholder="Enter Room ID">
-                <div class="my-3">
-                    <button onclick="create()" class="btn btn-primary">Create Room</button>
-                    <button onclick="connect()" class="btn btn-secondary">Join Room</button>
-                </div>
-            </div>
-        </div>
-        <video id="share-stream" class="p-0 my-5" style="cursor: none;" onmousemove="showCoordinates(event)" onmouseout="flushCoordinates(event)"></video>
-        </div>
+<div class="container">
+    <button name="create-room" id="create-room" class="btn btn-primary" onclick="createRoom()" role="button">Create Room</button>
+    <button name="share-screen" id="share-screen" class="btn btn-success" onclick="startScreenShare()" role="button" style="display: none">Share Screen</button>
+    <button name="join-room" id="join-room" class="btn btn-secondary" onclick="joinRoom()" role="button">Join Room</button>
+    <button name="agent-join" id="agent-join" class="btn btn-secondary" onclick="joinRoom(true)" role="button">Join as Agent</button>
+
+    <div id="video-container" class="row container position-relative my-3">
     </div>
+
+
+    <div class="container-fluid" id="iframe-browser">
+    </div>
+    <div class="container-fluid fixed-bottom" id="agent-controls"></div>
+
+
 </div>
 @endsection
