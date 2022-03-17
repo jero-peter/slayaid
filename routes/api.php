@@ -24,11 +24,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 //Test Code
-Route::post('get-help', function (Request $request){
-
-    $userCode = $request->get('user-code');
+Route::get('/get-help', function (Request $request){
+    $request->user();
     $availableAgents = User::where('user_group', 2)->first();
 
     return response()->json(['available-agents' => $availableAgents, 'user-code' => $userCode]);
-});
+})->middleware('auth:sanctum');
 

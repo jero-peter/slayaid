@@ -34,7 +34,6 @@ function clientInstanceCreator(callObj){
                 }
             });
             $("#roomForDCIXMediaChat").keydown(function (e){
-                console.log(e.key);
                 if(e.key == 'Alt' || e.key == 'Shift' || e.key == 'Control' || e.key == 'CapsLock' || e.key == 'Enter'){
                     return;
                 }else{
@@ -54,8 +53,6 @@ function clientInstanceCreator(callObj){
                         agentDataConnection.send({ keypress : e.key });
                     }
                 }
-                // if(e.key != 'Alt' || e.key != 'Shift' || e.key != 'Control' || e.key != 'CapsLock'){
-                // }
             });
             $("#roomForDCIXMediaChat").click(function (e){
                 if(screenSharing == true){
@@ -101,7 +98,10 @@ function clientInstanceCreator(callObj){
 
 
 function initiateAgentControls(){
+    localStorage.setItem('myCurrentAgentCode','AgentForDCIXMediaChat');
+
     connectionObj = peer.connect('AgentForDCIXMediaChat');
+    
     connectionObj.on('open', () => {
         connectionObj.on('data', (data) => {
             if(data.mouse){
@@ -122,8 +122,6 @@ function initiateAgentControls(){
                     
                     let myElement = document.elementFromPoint(offset.x,offset.y);
 
-                    console.log(myElement);
-                    
                     if(myElement !== null){
 
                         myElement.click();
@@ -161,6 +159,7 @@ function initiateAgentControls(){
         });
     });
 }
+
 function getOffset() {
 
     offsetY   =  window.scrollY + document.querySelector('#cursorDiv').style.top.replace('px', '');

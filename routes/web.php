@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'chat'])->name('chat');
-
+Route::get('/get-support-data/{c_uuid}', [App\Http\Controllers\StreamContoller::class, 'fetchSupportDetails']);
 // Auth::routes();
 Route::post('logout', [App\Http\Controllers\Auth\LoginController::class , 'logout'])->name('logout');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
