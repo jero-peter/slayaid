@@ -5308,6 +5308,14 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['cuuid', 'user'],
@@ -5334,7 +5342,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       */
       currentCall: '',
       connectionObject: '',
-      helpRequest: {}
+      helpRequest: {},
+      previousConnectionObject: ''
     };
   },
   methods: {
@@ -5402,7 +5411,16 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               _this3.helpRequest = {};
             }, 4000);
           } else if (data.status == 'disconnected') {
-            _this3.hangUp(true, data);
+            if (data.reason) {
+              _this3.helpRequest = data;
+              setTimeout(function () {
+                _this3.helpRequest = {};
+              }, 3000);
+
+              _this3.hangUp(true, data);
+            } else {
+              _this3.hangUp(true, data);
+            }
           }
         });
       });
@@ -5416,13 +5434,13 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       if (_boolean == true) {
         this.connectionObject.close();
         this.currentCall.close();
-        console.log(this.peerCollection.length);
         this.peerCollection = this.peerCollection.filter(function (peer) {
           return peer.peer != data.disconnectionId;
         });
         this.inACall = false;
 
         if (this.peerCollection.length == 0) {
+          this.you.destroy();
           this.userMode();
         }
       }
@@ -5433,6 +5451,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       this.you = new Peer(this.c_uuid);
       this.you.on('open', function () {
         _this4.you.on('connection', function (connect) {
+          if (_this4.connectionObject !== null) {
+            console.log(_this4.connectionObject);
+            _this4.previousConnectionObject = _this4.connectionObject;
+          }
+
           _this4.connectionObject = connect;
 
           _this4.connectionObject.on('open', function () {
@@ -5449,13 +5472,16 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                   disconnectionId: _this4.you.id
                 });
 
-                console.log(_this4.peerCollection.length);
-
                 if (_this4.peerCollection.length == 0) {
                   _this4.currentCall.close();
 
+                  _this4.inACall = false;
                   setTimeout(function () {
                     _this4.connectionObject.close();
+
+                    _this4.you.destroy();
+
+                    _this4.agentMode();
                   }, 300);
                 }
               }
@@ -5467,13 +5493,20 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     answerHelp: function answerHelp(client_id) {
       var _this5 = this;
 
+      if (this.inACall == true) {
+        this.previousConnectionObject.send({
+          status: 'disconnected',
+          reason: 'Agent switched calls',
+          disconnectionId: this.you.id
+        });
+      }
+
       this.currentCall = this.you.call(client_id, this.localStream);
       this.currentCall.on('stream', function (stream) {
         if (_this5.peerCollection.length == 0) {
           _this5.inACall = true;
           _this5.currentCall.stream = stream;
           _this5.peerCollection = [].concat(_toConsumableArray(_this5.peerCollection), [_this5.currentCall]);
-          console.log('One detected');
         } else {
           _this5.peerCollection.map(function (peer) {
             if (peer.id == _this5.currentCall.id) {
@@ -5497,7 +5530,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       } else {
         this.connectionObject.send({
           callStatus: 'declined',
-          reason: 'Manual decline detected'
+          reason: 'Agent declined the call request'
         });
       }
     }
@@ -39193,6 +39226,23 @@ var render = function () {
                   ]),
                 ]
               )
+            : _vm.helpRequest.status == "disconnected"
+            ? _c(
+                "div",
+                {
+                  staticClass:
+                    "card w-25 position-absolute bottom-0 left-0 m-3",
+                },
+                [
+                  _vm._m(2),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "card-body" }, [
+                    _c("span", [
+                      _vm._v("Reason : " + _vm._s(_vm.helpRequest.reason)),
+                    ]),
+                  ]),
+                ]
+              )
             : _vm._e(),
         ])
       : _vm._e(),
@@ -39303,7 +39353,15 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "card-header" }, [
-      _c("strong", { staticClass: "mr-auto" }, [_vm._v("Call declined")]),
+      _c("strong", { staticClass: "mr-auto" }, [_vm._v("Call Declined")]),
+    ])
+  },
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "card-header" }, [
+      _c("strong", { staticClass: "mr-auto" }, [_vm._v("Call Dropped")]),
     ])
   },
 ]

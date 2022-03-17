@@ -18,7 +18,15 @@
        <div v-if="activeUser.user_group !== 2">
             <div class="card w-25 position-absolute bottom-0 left-0 m-3" v-if="helpRequest.callStatus">
                 <div class="card-header">
-                    <strong class="mr-auto">Call declined</strong>
+                    <strong class="mr-auto">Call Declined</strong>
+                </div>
+                <div class="card-body">
+                    <span>Reason : {{helpRequest.reason}}</span>
+                </div>
+            </div>
+            <div class="card w-25 position-absolute bottom-0 left-0 m-3" v-else-if="helpRequest.status == 'disconnected'">
+                <div class="card-header">
+                    <strong class="mr-auto">Call Dropped</strong>
                 </div>
                 <div class="card-body">
                     <span>Reason : {{helpRequest.reason}}</span>
@@ -78,6 +86,7 @@ export default {
             currentCall : '',
             connectionObject : '',
             helpRequest : {},
+            previousConnectionObject : '',
         }
     },
     methods : {
@@ -130,7 +139,16 @@ export default {
                         },4000);
                     }
                     else if(data.status == 'disconnected'){
-                        this.hangUp(true, data);
+                        if(data.reason){
+                            this.helpRequest = data;
+                            setTimeout(()=>{
+                                this.helpRequest = {};
+                            },3000);
+                            this.hangUp(true, data);
+                        }else{
+                            this.hangUp(true, data);
+
+                        }
                     }
                 });
             });
@@ -140,10 +158,10 @@ export default {
             if(boolean == true){
                 this.connectionObject.close();
                 this.currentCall.close();
-                console.log(this.peerCollection.length);
                 this.peerCollection = this.peerCollection.filter(peer => { return peer.peer != data.disconnectionId});
                 this.inACall = false;
                 if(this.peerCollection.length == 0){
+                    this.you.destroy();
                     this.userMode();
                 }
             }
@@ -151,7 +169,12 @@ export default {
         agentMode(){
             this.you = new Peer(this.c_uuid);
             this.you.on('open', ()=>{
+
                 this.you.on('connection', (connect) => {
+                    if(this.connectionObject !== null){
+                        console.log(this.connectionObject);
+                        this.previousConnectionObject = this.connectionObject;
+                    }
                     this.connectionObject = connect;
                     this.connectionObject.on('open', () => {
                         this.connectionObject.on('data', (data) => {
@@ -161,11 +184,13 @@ export default {
                             else if(data.status == 'disconnected'){
                                 this.peerCollection = this.peerCollection.filter(peer => { return peer.peer != data.disconnectionId});
                                 this.connectionObject.send({status : 'disconnected', disconnectionId : this.you.id});
-                                console.log(this.peerCollection.length);
                                 if(this.peerCollection.length == 0){
                                     this.currentCall.close();
+                                    this.inACall = false;
                                     setTimeout(()=>{
                                         this.connectionObject.close();
+                                        this.you.destroy();
+                                        this.agentMode();
                                     },300);
                                 }
                             }
@@ -176,13 +201,17 @@ export default {
             });
         },
         answerHelp(client_id){
+            
+            if(this.inACall == true){
+                this.previousConnectionObject.send({ status : 'disconnected', reason : 'Agent switched calls', disconnectionId : this.you.id });
+            }
+
             this.currentCall = this.you.call(client_id,this.localStream);
             this.currentCall.on('stream', (stream) =>{
                 if(this.peerCollection.length == 0){
                     this.inACall = true;
                     this.currentCall.stream = stream;
                     this.peerCollection = [...this.peerCollection, this.currentCall];
-                    console.log('One detected');
                 }else{
                     this.peerCollection.map(peer => {
                         if(peer.id == this.currentCall.id){
@@ -201,7 +230,7 @@ export default {
             if(this.inACall == true){
                 this.connectionObject.send({ callStatus : 'declined', reason : 'Agent busy, on another call'});
             }else{
-                this.connectionObject.send({ callStatus : 'declined', reason : 'Manual decline detected'});
+                this.connectionObject.send({ callStatus : 'declined', reason : 'Agent declined the call request'});
             }
         }
     },
