@@ -12,6 +12,78 @@ let connectionObj;
 let agentChatBox = document.getElementById('agent-chat');
 let mouseCursor;
 let tinyMode;
+let currentActiveUser;
+let config = {
+    host: '127.0.0.1',
+    port: 6001,
+    path: '/',
+    secure : false
+};
+let tinyTrooperMode;
+
+launch();
+
+function launch(){
+    let head = document.getElementsByTagName('head')[0];
+    
+
+    var fullApp = document.createElement("script");
+    fullApp.type = "text/javascript";
+    fullApp.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js";
+
+    head.append(fullApp);
+
+    var script = document.querySelector('[script-id="SPA-slayvault"]');
+    var identity = script.getAttribute('identity');
+    var customerUuid = script.getAttribute('customer-id');
+    var customerCompany = script.getAttribute('customer-company');
+    var customerName = script.getAttribute('customer-name');
+    
+    script.removeAttribute('identity');
+    script.removeAttribute('customer-id');
+    script.removeAttribute('customer-company');
+    script.removeAttribute('customer-name');
+
+    let form = new FormData();
+    form.append('uuid' , customerUuid);
+    form.append('company' , customerCompany);
+    form.append('name' , customerName);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", `https://support.saaslay.test/api/identity-verification`, true);
+
+    //Send the proper header information along with the request
+    xhr.setRequestHeader("Authorization", 'Bearer ' + atob(identity));
+
+    xhr.onreadystatechange = function() { // Call a function when the state changes.
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+
+            currentActiveUser = JSON.parse(xhr.response);
+
+
+            var peerJs = document.createElement("script");
+            peerJs.type = "text/javascript";
+            peerJs.src = "https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js";
+
+            head.append(peerJs);
+
+
+            var p2pSpa = document.createElement("script");
+            p2pSpa.type = "text/javascript";
+            p2pSpa.src = "https://support.saaslay.test/js/p2p-spa.js";
+
+            head.append(p2pSpa);
+
+            setTimeout(()=>{
+                tinyTrooperMode = true;
+                $('body').append('<button name="create-room" id="create-room" class="fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle float-end" onclick="createRoom()" role="button">&#10068;</button>');
+                $('body').append('<button name="share-screen" id="share-screen" class="fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle" onclick="startScreenShare()" role="button">&#10150;</button>');
+                $("#share-screen").hide();
+            },1000);
+
+        }
+    }
+    xhr.send(form);
+}
 
 function clientInstanceCreator(callObj){
 
@@ -184,7 +256,7 @@ function tellYourFriends(){
 }
 
 function createRoom(){
-    peer = new Peer('roomForDCIXMediaChat');
+    peer = new Peer(currentActiveUser.cc_uuid, config);
     prepareAgentActionObjects();
     mouseCursor = document.getElementById("cursorDiv");
     iAmHost = true;
@@ -252,10 +324,10 @@ function stopScreenSharing(){
 
 function joinRoom(agentCheck){
     if(agentCheck == true){
-        peer = new Peer('AgentForDCIXMediaChat');
+        peer = new Peer('AgentForDCIXMediaChat', config);
         disableAllButtons('Agent');
     }else{
-        peer = new Peer();
+        peer = new Peer('userofthesupport', config);
         disableAllButtons('Client');
     }
     let peerId;

@@ -19,7 +19,5 @@
         @yield('content')
     </main>
     <script src="/js/app.js"></script>
-    {{-- <script src="/js/p2pwc.js"></script> --}}
-    {{-- <script src="/js/p2p.js"></script> --}}
 </body>
 </html>

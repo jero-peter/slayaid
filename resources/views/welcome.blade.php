@@ -4,14 +4,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Adventure Time</title>
+        <title>Support Time</title>
 
         <link rel="stylesheet" href="/css/app.css">
     </head>
     <body class="antialiased">
-        <div class="row-fluid text-center">
-          <img class="d-block mx-auto my-5" src="/img/adventure_time.png" alt="">
-          <h3 class="text-center">Start your adventure right now!</h3>
+        <div class="row-fluid text-center"  style="margin-top: 25%">
+          <h1 class="d-block mx-auto my-5">Support Time</h1>
+          <h3 class="text-center">Start your supporting right now!</h3>
           {{-- <a href="/login" class="btn btn-warning text-dark">Log in</a> --}}
           @guest
             <a href="/slayvault/login" class="btn btn-danger text-white float-right"> &#128273; Log in with SlayVault</a>
