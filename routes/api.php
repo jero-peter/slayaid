@@ -17,16 +17,5 @@ use App\Models\User;
 |
 */
 
-Route::middleware('auth:sanctum')->post('/identity-verification', [App\Http\Controllers\RemoteController::class, 'verifyUser']);
-Route::middleware('auth:sanctum')->post('/get-support-data/{c_uuid}', [App\Http\Controllers\RemoteController::class, 'fetchSupportData']);
-
-
-
-//Test Code
-Route::get('/get-help', function (Request $request){
-    $request->user();
-    $availableAgents = User::where('user_group', 2)->first();
-
-    return response()->json(['available-agents' => $availableAgents, 'user-code' => $userCode]);
-})->middleware('auth:sanctum');
-
+// Route::middleware('auth:sanctum')->post('/identity-verification', [App\Http\Controllers\RemoteController::class, 'verifyUser']);
+// Route::middleware('auth:sanctum')->post('/get-support-data/{c_uuid}', [App\Http\Controllers\RemoteController::class, 'fetchSupportData']);
