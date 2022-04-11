@@ -5256,10 +5256,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['data', 'user'],
+  props: ['data', 'user', 'token'],
   data: function data() {
     return {
       userData: JSON.parse(this.user),
+      supportToken: this.token,
       agentData: '',
       clientData: '',
       snippetVisible: false
@@ -5288,13 +5289,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['data', 'user'],
+  props: ['data', 'user', 'token'],
   data: function data() {
     return {
       userData: JSON.parse(this.user),
+      supportToken: this.token,
       agentData: '',
-      clientData: ''
+      clientData: '',
+      snippetVisible: false
     };
   }
 });
@@ -39005,8 +39012,8 @@ var render = function () {
       ? _c("code", { staticClass: "text-white" }, [
           _vm._v(
             '\r\n        <script script-id="SPA-slayvault" identity="' +
-              _vm._s(_vm.userData.support_token) +
-              '" customer-id="" customer-company="" customer-name="" src="https://support.saaslay.com/js/p2p.js"></script>\r\n    '
+              _vm._s(_vm.supportToken) +
+              '" customer-id="client-uuid" customer-company="client-company" customer-name="client-name" src="https://support.saaslay.com/js/p2p.js"></script>\r\n    '
           ),
         ])
       : _vm._e(),
@@ -39038,9 +39045,32 @@ var render = function () {
   return _c("div", [
     _c("h5", { staticClass: "text-white" }, [
       _vm._v(
-        "Hi " + _vm._s(_vm.userData.name) + ", Welcome to the agent dashboard!"
+        "Hi " + _vm._s(_vm.userData.name) + ", Welcome to the Agent dashboard!"
+      ),
+      _c(
+        "button",
+        {
+          staticClass: "text-white btn-success btn float-end",
+          on: {
+            click: function ($event) {
+              $event.preventDefault()
+              _vm.snippetVisible = !_vm.snippetVisible
+            },
+          },
+        },
+        [_vm._v("Snippet")]
       ),
     ]),
+    _vm._v(" "),
+    _vm.snippetVisible == true
+      ? _c("code", { staticClass: "text-white" }, [
+          _vm._v(
+            '\r\n        <script script-id="SPA-slayvault" identity="' +
+              _vm._s(_vm.supportToken) +
+              '" customer-id="client-uuid" customer-company="client-company" customer-name="client-name" src="https://support.saaslay.com/js/p2p.js"></script>\r\n    '
+          ),
+        ])
+      : _vm._e(),
   ])
 }
 var staticRenderFns = []
