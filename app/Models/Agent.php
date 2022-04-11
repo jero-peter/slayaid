@@ -4,16 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Client extends Model
+class Agent extends Authenticatable
 {
     use HasFactory;
+    
+    protected $guard = 'agent';
 
-
+    protected $table = 'agents';
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'name',
-        'company_name',
+        'email',
+        'company',
         'uuid',
+        'user_type',
+        'user_group'
     ];
 
     /**

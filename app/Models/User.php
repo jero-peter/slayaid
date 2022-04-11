@@ -21,7 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        
+        'uuid',
+        'support_token',
+        'slayvault_token'
     ];
 
     /**
@@ -32,9 +34,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'c_uuid',
-        't_token',
-        'sv_token',
+        'uuid',
+        'support_token',
+        'slayvault_token'
     ];
 
     /**
@@ -53,6 +55,11 @@ class User extends Authenticatable
      */
     public function clients()
     {
-        return $this->hasMany(Client::class, 'client_of', 'id');
+        return $this->hasMany(Client::class, 'ownership_id', 'id');
+    }
+
+    public function agents()
+    {
+        return $this->hasMany(Agent::class, 'ownership_id', 'id');
     }
 }

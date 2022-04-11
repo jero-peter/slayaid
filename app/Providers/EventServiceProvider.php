@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Events\GuestCreated;
 use App\Listeners\NotifySlayvaultOfGuestAdded;
 
-
 use App\Models\User;
+use App\Models\Agent;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -64,8 +64,12 @@ class EventServiceProvider extends ServiceProvider
             * "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
             * "http://schemas.xmlsoap.org/claims/CommonName"
             */
+            if($userData['attributes']['http://schemas.xmlsoap.org/claims/Group'][0] == 1){
+                $user = User::where('email', $userData['id'])->first();
+            }else{
+                $user = Agent::where('email', $userData['id'])->first();
+            }
 
-            $user = User::where('email', $userData['id'])->first();
             $whetherSubscribedFlag = false;
             $subData = $userData['attributes']['Subscription'];
 
@@ -73,31 +77,50 @@ class EventServiceProvider extends ServiceProvider
                 $processedAppData = json_decode($appData);
                 if($processedAppData->id == config('app.service_id') && $processedAppData->subdomain == config('app.subdomain')){
                     $whetherSubscribedFlag = true;
+                    break;
                 }
             }
 
-            if($whetherSubscribedFlag){
+            if($whetherSubscribedFlag == true){
                 if($user){
-                    Auth::loginUsingId($user->id);
-                }else{
-
-                    $user = new User;
-                    $user->name = $userData['attributes']['http://schemas.xmlsoap.org/claims/CommonName'][0];
-                    $user->email = $userData['attributes']['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'][0];
-                    $user->user_type = $userData['attributes']['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'][0];
-                    $user->user_group = $userData['attributes']['http://schemas.xmlsoap.org/claims/Group'][0];
-                    $user->company = $userData['attributes']['Company'][0];
-                    $user->save();
-
-                    if($userData['attributes']['http://schemas.xmlsoap.org/claims/Group'][0] == 1){
-                        $user->c_uuid = $userData['attributes']['C_UUID'][0];
-                        $token = $user->createToken($user->c_uuid);
-                        $user->t_token = base64_encode($token->plainTextToken);
-                        $user->sv_token = $userData['attributes']['SV_TOKEN'][0];
-                        $user->save();
+                    if($user->user_group == 1){
+                        Auth::guard('web')->loginUsingId($user->id);
+                    }elseif($user->user_group == 2){
+                        Auth::guard('agent')->loginUsingId($user->id);
                     }
+                }else{
+                    if($userData['attributes']['http://schemas.xmlsoap.org/claims/Group'][0] == 1){
+                        $user = new User;
+                        $user->name = $userData['attributes']['http://schemas.xmlsoap.org/claims/CommonName'][0];
+                        $user->email = $userData['attributes']['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'][0];
+                        $user->user_type = $userData['attributes']['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'][0];
+                        $user->user_group = $userData['attributes']['http://schemas.xmlsoap.org/claims/Group'][0];
+                        $user->company = $userData['attributes']['Company'][0];
+                        $user->uuid = $userData['attributes']['C_UUID'][0];
+                        $user->save();
 
-                    Auth::loginUsingId($user->id);
+
+                        $token = $user->createToken($user->uuid);
+                        $user->support_token = base64_encode($token->plainTextToken);
+                        $user->slayvault_token = $userData['attributes']['Slayvault_token'][0];
+
+                        $user->save();
+                        
+                        Auth::loginUsingId($user->id);
+
+                    }elseif($userData['attributes']['http://schemas.xmlsoap.org/claims/Group'][0] == 2){
+                        $agent = new Agent;
+                        $agent->name = $userData['attributes']['http://schemas.xmlsoap.org/claims/CommonName'][0];
+                        $agent->email = $userData['attributes']['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'][0];
+                        $agent->user_type = $userData['attributes']['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'][0];
+                        $agent->user_group = $userData['attributes']['http://schemas.xmlsoap.org/claims/Group'][0];
+                        $agent->company = $userData['attributes']['Company'][0];
+                        $agent->uuid = $userData['attributes']['C_UUID'][0];
+                        $agent->ownership_id = $userData['attributes']['Ownership'][0];
+                        $agent->save();
+
+                        Auth::loginUsingId($agent->id);
+                    }
                 }
             }else{
                 return redirect('/');

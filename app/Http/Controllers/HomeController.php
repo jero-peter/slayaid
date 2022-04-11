@@ -8,16 +8,21 @@ use App\Models\User;
 class HomeController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth');
+        $this->middleware(['auth:web,agent']);
     }
-
-    public function chat($c_uuid){
-        $owner = User::where('c_uuid', $c_uuid)->first();
-        if($owner){
-            $owner = $owner->makeVisible(['t_token']);
-            return view('home')->with('user', $owner);
+    public function home(){
+        if(auth()->user()){
+            if(auth()->user()->user_group == 1){
+                return redirect('/dash-'.auth()->user()->uuid);
+            }elseif(auth()->user()->user_group == 2){
+                return redirect('/dash-'.auth()->user()->user->uuid);
+            }
         }else{
             return response(400);
         }
+    }
+    public function dashboard($uuid){
+        $admin = User::with('clients', 'agents')->where('uuid', $uuid)->first()->makeVisible('support_token');
+        return view('dashboard')->with(['admin' => $admin, 'token' => $admin->support_token]);
     }
 }

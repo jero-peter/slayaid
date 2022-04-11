@@ -17,5 +17,5 @@ use App\Models\User;
 |
 */
 
-// Route::middleware('auth:sanctum')->post('/identity-verification', [App\Http\Controllers\RemoteController::class, 'verifyUser']);
-// Route::middleware('auth:sanctum')->post('/get-support-data/{c_uuid}', [App\Http\Controllers\RemoteController::class, 'fetchSupportData']);
+
+Route::middleware('auth:sanctum')->post('/identity-verification', [App\Http\Controllers\RemoteController::class, 'verifyUser'])->name('verification');

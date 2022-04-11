@@ -18,7 +18,9 @@ window.Vue = require('vue').default;
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('remote', require('./components/Remote.vue').default);
+Vue.component('Administrator', require('./components/Administrator.vue').default);
+Vue.component('Agent', require('./components/Agent.vue').default);
+Vue.component('Client', require('./components/Client.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

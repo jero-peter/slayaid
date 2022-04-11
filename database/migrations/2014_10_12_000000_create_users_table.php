@@ -18,9 +18,9 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('company');
-            $table->string('c_uuid')->unique()->nullable();
-            $table->string('t_token')->nullable();
-            $table->string('sv_token')->unique()->nullable();
+            $table->string('uuid')->unique();
+            $table->string('support_token')->nullable();
+            $table->string('slayvault_token')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('user_type')->default('guest');
             $table->integer('user_group')->default(1);

@@ -15,17 +15,20 @@ class RemoteController extends Controller
 
         return response()->json(['agents' => $agents , 'clients' => $clients]);
     }
-    public function getHelp($c_uuid){
-        $owner = User::where('c_uuid', $c_uuid)->where('user_group', 1)->first();
-    }
 
-    public function landing(){
-        return view('welcome');
-    }
-    public function index()
-    {
-        return redirect('/user-'.auth()->user()->c_uuid)->with('user', auth()->user()->c_uuid);
-    }
+
+    
+    // public function getHelp($c_uuid){
+    //     $owner = User::where('c_uuid', $c_uuid)->where('user_group', 1)->first();
+    // }
+
+    // public function landing(){
+    //     return view('welcome');
+    // }
+    // public function index()
+    // {
+    //     return redirect('/user-'.auth()->user()->c_uuid)->with('user', auth()->user()->c_uuid);
+    // }
 
 
     public function verifyUser(Request $request){
@@ -46,7 +49,7 @@ class RemoteController extends Controller
                 $customer->client_of = $owner->id;
                 $customer->save();
 
-                return response()->json($customer);
+                return response()->json(['agents' => $agents , 'clients' => $clients]);
             }
         }
     }

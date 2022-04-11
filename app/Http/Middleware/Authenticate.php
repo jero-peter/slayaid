@@ -15,7 +15,7 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return redirect('/slayvault/login');
+            return redirect('https://support.saaslay.test/slayvault/login');
         }
     }
 }
