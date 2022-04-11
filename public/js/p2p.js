@@ -79,9 +79,9 @@ function launch() {
                     "fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle float-end";
                 createRoomButton.name = "create-room";
                 createRoomButton.id = "create-room";
-                createRoomButton.onclick = "createRoom()";
+                createRoomButton.onclick = createRoom();
                 createRoomButton.role = "button";
-                createRoomButton.createTextNode("&#10068;");
+                createRoomButton.innerHTML = "&#10068";
                 document.body.appendChild(createRoomButton);
 
                 var shareScreenButton = document.createElement("button");
@@ -89,12 +89,12 @@ function launch() {
                     "fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle float-end";
                 shareScreenButton.name = "share-screen";
                 shareScreenButton.id = "share-screen";
-                shareScreenButton.onclick = "startScreenShare()";
+                shareScreenButton.onclick = startScreenShare();
                 shareScreenButton.role = "button";
-                shareScreenButton.createTextNode("&#10150;");
+                shareScreenButton.innerHtml = "&#10150";
                 document.body.appendChild(shareScreenButton);
 
-                document.getElementById("#share-screen").style.display = "none";
+                document.getElementById("share-screen").style.display = "none";
                 // $('body').append('<button name="create-room" id="create-room" class="fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle float-end" onclick="createRoom()" role="button">&#10068;</button>');
                 // $('body').append('<button name="share-screen" id="share-screen" class="fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle" onclick="startScreenShare()" role="button">&#10150;</button>');
                 // $("#share-screen").hide();
@@ -106,25 +106,30 @@ function launch() {
 
 function createRoom() {
     peer = new Peer(currentActiveUser.cc_uuid, config);
-    prepareAgentActionObjects();
+    // prepareAgentActionObjects();
     mouseCursor = document.getElementById("cursorDiv");
     iAmHost = true;
-    disableAllButtons("Host");
+    // disableAllButtons("Host");
     peer.on("open", () => {
         peer.on("call", (callObj) => {
             currentPeer = callObj;
-            userMediaStream({ video: true, audio: true }, (stream) => {
+            userMediaStream({
+                video: true,
+                audio: true
+            }, (stream) => {
                 callObj.answer(stream);
                 connectionObj = peer.connect(callObj.peer);
-                clientInstanceCreator(callObj);
+                // clientInstanceCreator(callObj);
             });
         });
     });
-    $("#share-screen").show();
+    console.log(document.querySelector("#share-screen")); // .style.display = "visible";
 }
 
 function startScreenShare() {
-    navigator.mediaDevices.getDisplayMedia({ video: true }).then((stream) => {
+    navigator.mediaDevices.getDisplayMedia({
+        video: true
+    }).then((stream) => {
         screenStream = stream;
         let videoTrack = screenStream.getVideoTracks()[0];
         videoTrack.onended = () => {
@@ -140,7 +145,9 @@ function startScreenShare() {
                         });
                     sender.replaceTrack(videoTrack);
                     screenSharing = true;
-                    connectionObj.send({ sharing: true });
+                    connectionObj.send({
+                        sharing: true
+                    });
                 });
             }
         } else {
