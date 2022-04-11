@@ -11,9 +11,7 @@ let agentDataConnection;
 let connectionObj; 
 let agentChatBox = document.getElementById('agent-chat');
 let mouseCursor;
-let tinyMode;
 let currentActiveUser;
-let tinyTrooperMode;
 let head = document.getElementsByTagName('head')[0];
 
 var peerJs = document.createElement("script");
@@ -35,7 +33,6 @@ launch();
 function launch(){
     let head = document.getElementsByTagName('head')[0];
     
-
     var script = document.querySelector('[script-id="SPA-slayvault"]');
     var identity = script.getAttribute('identity');
     var customerUuid = script.getAttribute('customer-id');
@@ -62,13 +59,11 @@ function launch(){
 
             currentActiveUser = JSON.parse(xhr.response);
 
-
             var peerJs = document.createElement("script");
             peerJs.type = "text/javascript";
             peerJs.src = "https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js";
 
             head.append(peerJs);
-
 
             var p2p = document.createElement("script");
             p2p.type = "text/javascript";
@@ -77,8 +72,6 @@ function launch(){
             head.append(p2p);
 
             setTimeout(() => {
-                tinyTrooperMode = true;
-
                 var createRoomButton = document.createElement('button');
                 createRoomButton.class = 'fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle float-end';
                 createRoomButton.name = 'create-room';
@@ -106,4 +99,51 @@ function launch(){
         }
     }
     xhr.send(form);
+}
+
+function createRoom(){
+    peer = new Peer(currentActiveUser.cc_uuid, config);
+    prepareAgentActionObjects();
+    mouseCursor = document.getElementById("cursorDiv");
+    iAmHost = true;
+    disableAllButtons('Host');
+    peer.on('open', ()=>{
+        peer.on('call', (callObj)=>{
+            currentPeer = callObj;
+            userMediaStream({ video : true, audio : true } , stream => {
+                callObj.answer(stream);
+                connectionObj = peer.connect(callObj.peer);
+                clientInstanceCreator(callObj);
+            });
+        });
+    });
+    $("#share-screen").show();
+}
+
+function startScreenShare(){
+    navigator.mediaDevices.getDisplayMedia({ video: true }).then((stream) => {
+        screenStream = stream;
+        let videoTrack = screenStream.getVideoTracks()[0];
+        videoTrack.onended = () => {
+            stopScreenSharing()
+        }
+        if(iAmHost == true){
+            if (peerListArray.length > 0) {
+                peerListArray.forEach(currentPeer => {
+                    let sender = currentPeer.peerConnection.getSenders().find(function (s) {
+                        return s.track.kind == videoTrack.kind;
+                    });
+                    sender.replaceTrack(videoTrack)
+                    screenSharing = true;
+                    connectionObj.send({ sharing : true });
+                });
+            }
+        }else{
+            let sender = currentPeer.peerConnection.getSenders().find(function (s) {
+                return s.track.kind == videoTrack.kind;
+            });
+            sender.replaceTrack(videoTrack)
+            screenSharing = true;
+        }
+    });
 }
