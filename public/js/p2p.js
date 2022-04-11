@@ -70,8 +70,7 @@ function launch() {
 
             setTimeout(() => {
                 var createRoomButton = document.createElement("button");
-                createRoomButton.class =
-                    "fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle float-end";
+                createRoomButton.classList.add("fixed-bottom", "p-3", "btn", "btn-success", "text-white", "px-2", "py-1","rounded-circle", "float-end");
                 createRoomButton.name = "create-room";
                 createRoomButton.id = "create-room";
                 createRoomButton.onclick = createRoom();
@@ -80,8 +79,7 @@ function launch() {
                 document.body.appendChild(createRoomButton);
 
                 var shareScreenButton = document.createElement("button");
-                shareScreenButton.class =
-                    "fixed-bottom p-3 btn btn-success text-white px-2 py-1 rounded-circle float-end";
+                shareScreenButton.classList.add("fixed-bottom", "p-3", "btn", "btn-success", "text-white", "px-2", "py-1", "rounded-circle", "float-end");
                 shareScreenButton.name = "share-screen";
                 shareScreenButton.id = "share-screen";
                 shareScreenButton.onclick = startScreenShare();
@@ -100,7 +98,7 @@ function launch() {
 }
 
 function createRoom() {
-    peer = new Peer(currentActiveUser.cc_uuid, config);
+    peer = new Peer(currentActiveUser.uuid, config);
     // prepareAgentActionObjects();
     mouseCursor = document.getElementById("cursorDiv");
     iAmHost = true;
