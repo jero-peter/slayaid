@@ -145,8 +145,8 @@ function startScreenShare(){
             if(data.mouse){
                 let docY = $(document).height();
                 let docX = $(document).width();
-                factorX = docX/data.mouse.frameX;
-                factorY = docY/data.mouse.frameY;
+                factorX = docX/data.mouse.x;
+                factorY = docY/data.mouse.y;
                 mouseCursor.style.left = data.mouse.xMouse * factorX + 'px'; 
                 mouseCursor.style.top = data.mouse.yMouse * factorY + 'px';
 
