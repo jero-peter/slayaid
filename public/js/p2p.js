@@ -120,3 +120,7 @@ function prepareAgentActionObjects() {
     // $('body').append('<div id="cursorDiv" class="text-dark"  style="position:absolute;top:0;left:0;z-index:9999;"><img src=""><span id="cursorText">Agent</span></div>');
 }
 
+function startScreenShare(){
+    prepareAgentActionObjects();
+}
+
