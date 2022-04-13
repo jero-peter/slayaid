@@ -5353,10 +5353,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       //support Mode variables
       mediaStream: navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia,
       supportModeActive: false,
+      supportStreamActive: false,
+      localStream: '',
+      clientVoice: '',
       you: '',
       call: '',
-      localStream: '',
-      clientVoice: ''
+      connection: '',
+      remoteControlStatus: false
     };
   },
   methods: {
@@ -5388,7 +5391,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   _this.you.on('call', function (call) {
                     call.answer();
                     call.on('stream', function (videoStream) {
+                      selfRef.supportStreamActive = true;
                       selfRef.localStream = videoStream;
+                      selfRef.initializeAgentControls();
                     });
                   });
                 }
@@ -5400,6 +5405,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }, _callee);
       }))();
+    },
+    sendMouseCoordinates: function sendMouseCoordinates(e) {
+      if (this.remoteControlStatus == true) {
+        this.connection.send({
+          x: e.clientX,
+          y: e.clientY,
+          clientHeight: e.srcElement.clientHeight,
+          clientWidth: e.srcElement.clientWidth
+        });
+      }
+    },
+    initializeAgentControls: function initializeAgentControls() {
+      var _this2 = this;
+
+      this.connection = this.you.connect(this.call.peer);
+      this.connection.on('open', function () {
+        _this2.remoteControlStatus = true;
+
+        _this2.connection.on('data', function (data) {// console.log(data);
+        });
+      });
     }
   }
 });
@@ -40050,10 +40076,13 @@ var render = function () {
       ? _c("div", { staticClass: "container" }, [
           _c("div", { staticClass: "row text-white mt-5" }, [
             _c("div", { staticClass: "col-10 my-auto" }, [
-              _c("video", {
-                attrs: { autoplay: "" },
-                domProps: { srcObject: _vm.localStream },
-              }),
+              _vm.supportStreamActive == true
+                ? _c("video", {
+                    attrs: { autoplay: "" },
+                    domProps: { srcObject: _vm.localStream },
+                    on: { mouseover: _vm.sendMouseCoordinates },
+                  })
+                : _vm._e(),
               _vm._v(" "),
               _c("audio", {
                 attrs: { autoplay: "" },

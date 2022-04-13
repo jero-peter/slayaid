@@ -1,10 +1,10 @@
-<template>
+c<template>
 <div>
     <h5 class="text-white">Hi {{userData.name}}, Welcome to the Agent dashboard!<button class="text-white btn-success btn float-end" @click.prevent="supportModeActive = !supportModeActive;"><span v-if="supportModeActive == true">Support Mode</span><span v-else>Chat Mode</span></button></h5>
     <div class="container" v-if="supportModeActive === true">
         <div class="row text-white mt-5">
             <div class="col-10 my-auto">
-                <video :srcObject.prop="localStream" autoplay></video>
+                <video :srcObject.prop="localStream" autoplay @mouseover="sendMouseCoordinates" v-if="supportStreamActive == true"></video>
                 <audio :srcObject.prop="clientVoice" autoplay></audio>
             </div>
             <div class="col-2">
@@ -42,10 +42,15 @@ export default {
             //support Mode variables
             mediaStream : navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia,
             supportModeActive : false,
-            you : '',
-            call : '',
+            supportStreamActive : false,
             localStream : '',
             clientVoice : '',
+
+            you : '',
+            call : '',
+            connection : '',
+            remoteControlStatus : false,
+
         }
     },
     methods : {
@@ -66,10 +71,27 @@ export default {
                 this.you.on('call', function(call) {
                     call.answer();
                     call.on('stream', function(videoStream){
+                        selfRef.supportStreamActive = true;
                         selfRef.localStream = videoStream;
+                        selfRef.initializeAgentControls();
                     })
                 });
             }
+        },
+        sendMouseCoordinates(e){
+            if(this.remoteControlStatus == true){
+                this.connection.send({ x : e.clientX, y : e.clientY, clientHeight : e.srcElement.clientHeight, clientWidth : e.srcElement.clientWidth });
+            }
+        },
+        initializeAgentControls(){
+            this.connection = this.you.connect(this.call.peer);
+            this.connection.on('open', () => {
+                this.remoteControlStatus = true;
+                this.connection.on('data', (data) => {
+                    // console.log(data);
+                });
+            });
+
         }
     }
 }
