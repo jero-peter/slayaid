@@ -5,6 +5,7 @@
         <div class="row text-white mt-5">
             <div class="col-10 my-auto">
                 <video :srcObject.prop="localStream" autoplay></video>
+                <audio :srcObject.prop="clientVoice" autoplay></audio>
             </div>
             <div class="col-2">
                 <ul class="list-unstyled text-center">
@@ -27,7 +28,6 @@ export default {
         return {
 
             //Static Data Components
-
             userData : JSON.parse(this.user),
             supportToken : this.token,
             agentData : JSON.parse(this.data).agents,
@@ -45,6 +45,7 @@ export default {
             you : '',
             call : '',
             localStream : '',
+            clientVoice : '',
         }
     },
     methods : {
@@ -52,14 +53,21 @@ export default {
             this.you = new Peer(this.userData.uuid, this.netSocketConfiguration);
             if(this.supportModeActive == true){
                 let selfRef = this;
-                this.mediaStream({ video: true, audio: true }, function(stream) {
+
+                this.mediaStream({ audio: true }, function(stream) {
                     selfRef.call = selfRef.you.call(uuid, stream);
-                    selfRef.call.on('stream', function(remoteStream) {
-                        selfRef.localStream = remoteStream;
+                    selfRef.call.on('stream', function(audioStream) {
+                        selfRef.clientVoice = audioStream;
                     });
-                    
-                }, function(err) {
+                },function(err) {
                     console.log('Failed to get local stream' ,err);
+                });
+
+                this.you.on('call', function(call) {
+                    call.answer();
+                    call.on('stream', function(videoStream){
+                        selfRef.localStream = videoStream;
+                    })
                 });
             }
         }

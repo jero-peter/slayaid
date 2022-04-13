@@ -9,8 +9,9 @@ var config = {
     secure : false
 };
 var streamObject;
+var connectedPeer;
 
-setTimeout(()=>{ launch(); },2000);
+launch();
 
 async function launch() {
     var head = document.getElementsByTagName("head")[0];
@@ -65,13 +66,18 @@ async function launch() {
                 document.body.appendChild(createRoomButton);
 
                 var shareScreenButton = document.createElement("button");
-                shareScreenButton.classList.add("fixed-bottom", "p-3", "btn", "btn-success", "text-white", "px-2", "py-1", "rounded-circle", "float-end");
+                shareScreenButton.classList.add("fixed-bottom", "p-3", "btn", "btn-success", "text-white", "px-2", "py-1", "ms-4", "rounded-circle", "float-end");
                 shareScreenButton.name = "share-screen";
                 shareScreenButton.id = "share-screen";
                 shareScreenButton.onclick = function () { startScreenShare() };
                 shareScreenButton.role = "button";
                 shareScreenButton.innerHTML = "&#10150";
                 document.body.appendChild(shareScreenButton);
+
+                var audioStream = document.createElement("video");
+                audioStream.id = "audio-stream";
+                audioStream.autoplay = "autoplay";
+                document.body.appendChild(audioStream);
 
                 document.getElementById("share-screen").style.display = "none";
             }, 1000);
@@ -82,12 +88,20 @@ async function launch() {
 
 
  function createRoom(){
-    navigator.mediaDevices.getDisplayMedia({ video: true })
-    .then(stream =>{
-        activePeer = new Peer(currentActiveUser.uuid, config);
-        activePeer.on('open', () => {
-            activePeer.on('call', function(call) {
+    activePeer = new Peer(currentActiveUser.uuid, config);
+    activePeer.on('open', () => {
+        activePeer.on('call', function(call) {
+            connectedPeer = call;
+            var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+            getUserMedia({ audio : true}, function (stream) {
                 call.answer(stream);
+                call.on('stream', function(stream){
+                    audioStream = document.getElementById('audio-stream');
+                    audioStream.srcObject = stream;
+                });
+                document.getElementById("share-screen").style.display = "block";
+            }, function(error){
+                console.log(error);
             });
         });
     });
@@ -95,7 +109,6 @@ async function launch() {
 
 
 function prepareAgentActionObjects() {
-
     var createCursorDiv = document.createElement("div");
     createCursorDiv.classList.add("text-dark");
     createCursorDiv.name = "cursorDiv";
@@ -111,16 +124,22 @@ function prepareAgentActionObjects() {
     createCursorImg.setAttribute('src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABzUlEQVR4XpWTT2iSYRzHP4Y6t7JLw4NCXRYrZl2adJ+jUVTEDuHuQUHsFgRBEEGNLalwM3UrijG0Fv1Z9Mc61CUiWKbnbeYke41OQk1998731+tlaLje7QNfntP3w4/f8zyIyHoeTM9omNPU2UYDtVrNOj0Tl6l79z1sjmaBpmmcPHEcp9NZiMTuBrYuWFujo6OdY0cH6OzclbgTnUxsSaDXdKqVCsvLeQaO+Nnb1RUYD0cKmxeIoKqr/P6zwsJiFq+3B19vr+d2aELCkZjHVIDoqKsqbXYbiFAsFnG5XPT3+wEK4+Fo4P8T6IZArQvs2I3YbDaq1TLtDgf+vr76chOhicizDQUiGAKNNqNQqZRxGOfbd+958vQ5r14nKZVKAKdowPrvDupTKMovvmYynB4cxNuznzfJZOxmcGwKAGD4/LmNdiCslMuk0hm9+EOZzeXz7Ovuxu12DwGphrQWWCwwP/+Fz58+nr0xNnIhnc7g3LGdgwe8O0dGg0OmtyBiQVGUucezjx4C37PfspMLi0sc9vnqzzxu+jGAQ8Ae1sEdCkdl7sVLuXT5yodWHSvNpGhGyeVy8Z+Ksvv6tatnaIEVE24FRy8CDiBLC/4C3kjgJkXCw9gAAAAASUVORK5CYII=');
     document.getElementById("cursorDiv").appendChild(createCursorImg);
 
-    var createCursorSpan = document.createElement("div");
+    var createCursorSpan = document.createElement("span");
     createCursorSpan.classList.add("text-dark");
     createCursorSpan.id = "cursorText";
     createCursorSpan.innerHTML = "Agent";
-    document.getElementById("cursorImg").appendChild(createCursorSpan);
-
-    // $('body').append('<div id="cursorDiv" class="text-dark"  style="position:absolute;top:0;left:0;z-index:9999;"><img src=""><span id="cursorText">Agent</span></div>');
+    document.getElementById("cursorDiv").appendChild(createCursorSpan);
 }
 
 function startScreenShare(){
-    prepareAgentActionObjects();
+
+    navigator.mediaDevices.getDisplayMedia({ video: true })
+    .then(stream =>{
+        activePeer.call(connectedPeer.peer, stream);
+        prepareAgentActionObjects();
+    });
+
+
+    // activePeer.on('connection')
 }
 

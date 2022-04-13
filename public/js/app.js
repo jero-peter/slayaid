@@ -5333,6 +5333,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['data', 'user', 'token'],
@@ -5354,7 +5355,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       supportModeActive: false,
       you: '',
       call: '',
-      localStream: ''
+      localStream: '',
+      clientVoice: ''
     };
   },
   methods: {
@@ -5373,15 +5375,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   selfRef = _this;
 
                   _this.mediaStream({
-                    video: true,
                     audio: true
                   }, function (stream) {
                     selfRef.call = selfRef.you.call(uuid, stream);
-                    selfRef.call.on('stream', function (remoteStream) {
-                      selfRef.localStream = remoteStream;
+                    selfRef.call.on('stream', function (audioStream) {
+                      selfRef.clientVoice = audioStream;
                     });
                   }, function (err) {
                     console.log('Failed to get local stream', err);
+                  });
+
+                  _this.you.on('call', function (call) {
+                    call.answer();
+                    call.on('stream', function (videoStream) {
+                      selfRef.localStream = videoStream;
+                    });
                   });
                 }
 
@@ -40045,6 +40053,11 @@ var render = function () {
               _c("video", {
                 attrs: { autoplay: "" },
                 domProps: { srcObject: _vm.localStream },
+              }),
+              _vm._v(" "),
+              _c("audio", {
+                attrs: { autoplay: "" },
+                domProps: { srcObject: _vm.clientVoice },
               }),
             ]),
             _vm._v(" "),
