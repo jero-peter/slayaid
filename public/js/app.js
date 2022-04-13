@@ -5408,13 +5408,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     sendMouseCoordinates: function sendMouseCoordinates(e) {
       if (this.remoteControlStatus == true) {
+        var el = document.getElementById('video-stream');
+        var elDistanceToTop = window.pageYOffset + el.getBoundingClientRect().top;
+        var elDistanceToLeft = window.pageXOffset + el.getBoundingClientRect().left;
         this.connection.send({
           mouse: true,
-          x: e.clientX,
-          y: e.clientY,
+          x: e.clientX - elDistanceToLeft,
+          y: e.clientY - elDistanceToTop,
           clientHeight: e.srcElement.clientHeight,
           clientWidth: e.srcElement.clientWidth
         });
+      }
+    },
+    sendMouseClickCoordinates: function sendMouseClickCoordinates(e) {
+      if (this.remoteControlStatus == true) {
+        this.connection.send({
+          mouse: {
+            click: true
+          }
+        });
+      }
+    },
+    sendKeyPresses: function sendKeyPresses(e) {
+      if (this.remoteControlStatus == true) {
+        if (e.key == 'Shift' || e.key == 'Alt' || e.key == 'Control' || e.key == 'Enter') {
+          return;
+        } else {
+          this.connection.send({
+            keypress: e.key
+          });
+        }
       }
     },
     initializeAgentControls: function initializeAgentControls() {
@@ -40079,9 +40102,20 @@ var render = function () {
             _c("div", { staticClass: "col-10 my-auto" }, [
               _vm.supportStreamActive == true
                 ? _c("video", {
-                    attrs: { autoplay: "" },
+                    staticStyle: { cursor: "none" },
+                    attrs: { id: "video-stream", autoplay: "" },
                     domProps: { srcObject: _vm.localStream },
-                    on: { mouseover: _vm.sendMouseCoordinates },
+                    on: {
+                      mousemove: _vm.sendMouseCoordinates,
+                      keydown: _vm.sendKeyPresses,
+                      click: function ($event) {
+                        $event.preventDefault()
+                        return _vm.sendMouseClickCoordinates.apply(
+                          null,
+                          arguments
+                        )
+                      },
+                    },
                   })
                 : _vm._e(),
               _vm._v(" "),

@@ -4,7 +4,7 @@ c<template>
     <div class="container" v-if="supportModeActive === true">
         <div class="row text-white mt-5">
             <div class="col-10 my-auto">
-                <video :srcObject.prop="localStream" autoplay @mouseover="sendMouseCoordinates" v-if="supportStreamActive == true"></video>
+                <video :srcObject.prop="localStream" id="video-stream" autoplay @mousemove="sendMouseCoordinates" @keydown="sendKeyPresses" style="cursor:none;" @click.prevent="sendMouseClickCoordinates" v-if="supportStreamActive == true"></video>
                 <audio :srcObject.prop="clientVoice" autoplay></audio>
             </div>
             <div class="col-2">
@@ -80,7 +80,24 @@ export default {
         },
         sendMouseCoordinates(e){
             if(this.remoteControlStatus == true){
-                this.connection.send({ mouse : true, x : e.clientX, y : e.clientY, clientHeight : e.srcElement.clientHeight, clientWidth : e.srcElement.clientWidth });
+                let el = document.getElementById('video-stream');
+                let elDistanceToTop = window.pageYOffset + el.getBoundingClientRect().top;
+                let elDistanceToLeft = window.pageXOffset + el.getBoundingClientRect().left;
+                this.connection.send({ mouse : true, x : e.clientX - elDistanceToLeft, y : e.clientY - elDistanceToTop, clientHeight : e.srcElement.clientHeight, clientWidth : e.srcElement.clientWidth });
+            }
+        },
+        sendMouseClickCoordinates(e){
+            if(this.remoteControlStatus == true){
+                this.connection.send({ mouse : { click : true }});
+            }
+        },
+        sendKeyPresses(e){
+            if(this.remoteControlStatus == true){
+                if(e.key == 'Shift' || e.key == 'Alt' || e.key == 'Control' || e.key == 'Enter'){
+                    return;
+                }else{
+                    this.connection.send({ keypress : e.key });
+                }
             }
         },
         initializeAgentControls(){

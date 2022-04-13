@@ -10,6 +10,7 @@ var config = {
 };
 var streamObject;
 var connectedPeer;
+var mouseObject;
 
 launch();
 
@@ -129,6 +130,10 @@ function prepareAgentActionObjects() {
     createCursorSpan.id = "cursorText";
     createCursorSpan.innerHTML = "Agent";
     document.getElementById("cursorDiv").appendChild(createCursorSpan);
+
+
+
+    cursorObject = document.getElementById('cursorDiv');
 }
 
 function startScreenShare(){
@@ -140,19 +145,21 @@ function startScreenShare(){
     });
 
     // activePeer.on('connection')
-    activePeer.on('connection', () => {
-        activePeer.on('data', (data) => {
+    activePeer.on('connection', (connection) => {
+        connection.on('data', (data) => {
             if(data.mouse){
-                let docY = $(document).height();
-                let docX = $(document).width();
-                factorX = docX/data.mouse.x;
-                factorY = docY/data.mouse.y;
-                mouseCursor.style.left = data.mouse.xMouse * factorX + 'px'; 
-                mouseCursor.style.top = data.mouse.yMouse * factorY + 'px';
+                let docY = window.innerHeight;
+                let docX = window.innerWidth;
+
+                factorX = docX / data.clientWidth;
+                factorY = docY / data.clientHeight;
+
+                cursorObject.style.left = data.x * factorX + 'px'; 
+                cursorObject.style.top = data.y * factorY + 'px';
 
                 if(data.mouse.click){
 
-                    mouseCursor.style.display = 'none';
+                    cursorObject.style.display = 'none';
 
                     let offset = getOffset();
                     
@@ -163,18 +170,12 @@ function startScreenShare(){
                         myElement.click();
                         myElement.focus();
     
-                        mouseCursor.style.display = 'initial';
+                        cursorObject.style.display = 'initial';
                     }else{
-                        mouseCursor.style.display = 'initial';
+                        cursorObject.style.display = 'initial';
                     }
                 }
 
-            }
-            else if(data.message){
-                $("#cursorText").text(data.message);
-                setTimeout(()=>{
-                    $("#cursorText").text('Agent');
-                },5000);
             }
             else if(data.keypress){
                 let activeEl = document.activeElement;
@@ -199,8 +200,8 @@ function startScreenShare(){
 
 function getOffset() {
 
-    offsetY = window.scrollY + document.querySelector('#cursorDiv').style.top.replace('px', '');
-    offsetX = window.scrollX + document.querySelector('#cursorDiv').style.left.replace('px', '');
+    offsetY = window.scrollY + cursorObject.style.top.replace('px', '');
+    offsetX = window.scrollX + cursorObject.style.left.replace('px', '');
 
     offsetY = parseInt(offsetY);
     offsetX = parseInt(offsetX);
