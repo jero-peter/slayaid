@@ -80,7 +80,7 @@ export default {
         },
         sendMouseCoordinates(e){
             if(this.remoteControlStatus == true){
-                this.connection.send({ x : e.clientX, y : e.clientY, clientHeight : e.srcElement.clientHeight, clientWidth : e.srcElement.clientWidth });
+                this.connection.send({ mouse : true, x : e.clientX, y : e.clientY, clientHeight : e.srcElement.clientHeight, clientWidth : e.srcElement.clientWidth });
             }
         },
         initializeAgentControls(){

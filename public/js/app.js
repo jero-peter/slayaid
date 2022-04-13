@@ -5409,6 +5409,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     sendMouseCoordinates: function sendMouseCoordinates(e) {
       if (this.remoteControlStatus == true) {
         this.connection.send({
+          mouse: true,
           x: e.clientX,
           y: e.clientY,
           clientHeight: e.srcElement.clientHeight,
