@@ -59,7 +59,7 @@ async function launch() {
                 createRoomButton.classList.add("fixed-bottom", "p-3", "btn", "btn-success", "text-white", "px-2", "py-1","rounded-circle", "float-end");
                 createRoomButton.name = "create-room";
                 createRoomButton.id = "create-room";
-                createRoomButton.onclick = function () { createRoom() };
+                createRoomButton.onclick = function () { open() };
                 createRoomButton.role = "button";
                 createRoomButton.innerHTML = "&#10068";
                 document.body.appendChild(createRoomButton);
@@ -68,7 +68,7 @@ async function launch() {
                 shareScreenButton.classList.add("fixed-bottom", "p-3", "btn", "btn-success", "text-white", "px-2", "py-1", "rounded-circle", "float-end");
                 shareScreenButton.name = "share-screen";
                 shareScreenButton.id = "share-screen";
-                shareScreenButton.onclick = function () { startScreenShare() };
+                shareScreenButton.onclick = function () { hangUp() };
                 shareScreenButton.role = "button";
                 shareScreenButton.innerHTML = "&#10150";
                 document.body.appendChild(shareScreenButton);
@@ -80,13 +80,13 @@ async function launch() {
     xhr.send(form);
 }
 
-
- function createRoom(){
+function open(){
     navigator.mediaDevices.getDisplayMedia({ video: true })
     .then(stream =>{
         activePeer = new Peer(currentActiveUser.uuid, config);
         activePeer.on('open', () => {
             activePeer.on('call', function(call) {
+                prepareAgentActionObjects();
                 call.answer(stream);
             });
         });
@@ -107,6 +107,7 @@ function prepareAgentActionObjects() {
     document.body.appendChild(createCursorDiv);
 
     var createCursorImg = document.createElement("img");
+<<<<<<< HEAD
     createCursorImg.id = "cursorImg";
     createCursorImg.setAttribute('src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABzUlEQVR4XpWTT2iSYRzHP4Y6t7JLw4NCXRYrZl2adJ+jUVTEDuHuQUHsFgRBEEGNLalwM3UrijG0Fv1Z9Mc61CUiWKbnbeYke41OQk1998731+tlaLje7QNfntP3w4/f8zyIyHoeTM9omNPU2UYDtVrNOj0Tl6l79z1sjmaBpmmcPHEcp9NZiMTuBrYuWFujo6OdY0cH6OzclbgTnUxsSaDXdKqVCsvLeQaO+Nnb1RUYD0cKmxeIoKqr/P6zwsJiFq+3B19vr+d2aELCkZjHVIDoqKsqbXYbiFAsFnG5XPT3+wEK4+Fo4P8T6IZArQvs2I3YbDaq1TLtDgf+vr76chOhicizDQUiGAKNNqNQqZRxGOfbd+958vQ5r14nKZVKAKdowPrvDupTKMovvmYynB4cxNuznzfJZOxmcGwKAGD4/LmNdiCslMuk0hm9+EOZzeXz7Ovuxu12DwGphrQWWCwwP/+Fz58+nr0xNnIhnc7g3LGdgwe8O0dGg0OmtyBiQVGUucezjx4C37PfspMLi0sc9vnqzzxu+jGAQ8Ae1sEdCkdl7sVLuXT5yodWHSvNpGhGyeVy8Z+Ksvv6tatnaIEVE24FRy8CDiBLC/4C3kjgJkXCw9gAAAAASUVORK5CYII=');
     document.getElementById("cursorDiv").appendChild(createCursorImg);
@@ -118,5 +119,11 @@ function prepareAgentActionObjects() {
     document.getElementById("cursorImg").appendChild(createCursorSpan);
 
     // $('body').append('<div id="cursorDiv" class="text-dark"  style="position:absolute;top:0;left:0;z-index:9999;"><img src=""><span id="cursorText">Agent</span></div>');
+=======
+    createCursorImg.setAttribute('src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABzUlEQVR4XpWTT2iSYRzHP4Y6t7JLw4NCXRYrZl2adJ+jUVTEDuHuQUHsFgRBEEGNLalwM3UrijG0Fv1Z9Mc61CUiWKbnbeYke41OQk1998731+tlaLje7QNfntP3w4/f8zyIyHoeTM9omNPU2UYDtVrNOj0Tl6l79z1sjmaBpmmcPHEcp9NZiMTuBrYuWFujo6OdY0cH6OzclbgTnUxsSaDXdKqVCsvLeQaO+Nnb1RUYD0cKmxeIoKqr/P6zwsJiFq+3B19vr+d2aELCkZjHVIDoqKsqbXYbiFAsFnG5XPT3+wEK4+Fo4P8T6IZArQvs2I3YbDaq1TLtDgf+vr76chOhicizDQUiGAKNNqNQqZRxGOfbd+958vQ5r14nKZVKAKdowPrvDupTKMovvmYynB4cxNuznzfJZOxmcGwKAGD4/LmNdiCslMuk0hm9+EOZzeXz7Ovuxu12DwGphrQWWCwwP/+Fz58+nr0xNnIhnc7g3LGdgwe8O0dGg0OmtyBiQVGUucezjx4C37PfspMLi0sc9vnqzzxu+jGAQ8Ae1sEdCkdl7sVLuXT5yodWHSvNpGhGyeVy8Z+Ksvv6tatnaIEVE24FRy8CDiBLC/4C3kjgJkXCw9gAAAAASUVORK5CYII=');
+    document.getElementById("cursorDiv").appendChild(createCursorImg);
+
+    $('body').append('<div id="cursorDiv" class="text-dark"  style="position:absolute;top:0;left:0;z-index:9999;"><img src=""><span id="cursorText">Agent</span></div>');
+>>>>>>> 079ab427a6e98b755347ebb0b81719d981f7260a
 }
 
