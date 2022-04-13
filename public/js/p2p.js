@@ -139,7 +139,73 @@ function startScreenShare(){
         prepareAgentActionObjects();
     });
 
-
     // activePeer.on('connection')
+    activePeer.on('connection', () => {
+        activePeer.on('data', (data) => {
+            if(data.mouse){
+                let docY = $(document).height();
+                let docX = $(document).width();
+                factorX = docX/data.mouse.frameX;
+                factorY = docY/data.mouse.frameY;
+                mouseCursor.style.left = data.mouse.xMouse * factorX + 'px'; 
+                mouseCursor.style.top = data.mouse.yMouse * factorY + 'px';
+
+                if(data.mouse.click){
+
+                    mouseCursor.style.display = 'none';
+
+                    let offset = getOffset();
+                    
+                    let myElement = document.elementFromPoint(offset.x,offset.y);
+
+                    if(myElement !== null){
+
+                        myElement.click();
+                        myElement.focus();
+    
+                        mouseCursor.style.display = 'initial';
+                    }else{
+                        mouseCursor.style.display = 'initial';
+                    }
+                }
+
+            }
+            else if(data.message){
+                $("#cursorText").text(data.message);
+                setTimeout(()=>{
+                    $("#cursorText").text('Agent');
+                },5000);
+            }
+            else if(data.keypress){
+                let activeEl = document.activeElement;
+                if(activeEl !== null){
+                    if(data.keypress == 'Backspace'){
+                        var currentValue = activeEl.value;
+                        activeEl.value = currentValue.substr(0, currentValue.length - 1);
+                        activeEl.innerText = currentValue.substr(0, currentValue.length - 1);
+                        activeEl.text = currentValue.substr(0, currentValue.length - 1);
+                        
+                    }else{
+                        activeEl.value += data.keypress;
+                        activeEl.innerText += data.keypress;
+                        activeEl.text += data.keypress;
+                    }
+                }
+            }
+        });
+    });
 }
 
+
+function getOffset() {
+
+    offsetY = window.scrollY + document.querySelector('#cursorDiv').style.top.replace('px', '');
+    offsetX = window.scrollX + document.querySelector('#cursorDiv').style.left.replace('px', '');
+
+    offsetY = parseInt(offsetY);
+    offsetX = parseInt(offsetX);
+    return { 
+        y : offsetY,
+        x : offsetX
+    }
+}
