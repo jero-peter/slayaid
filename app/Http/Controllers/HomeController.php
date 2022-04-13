@@ -22,7 +22,9 @@ class HomeController extends Controller
         }
     }
     public function dashboard($uuid){
-        $admin = User::with('clients', 'agents')->where('uuid', $uuid)->first()->makeVisible('support_token');
+        $admin = User::where('uuid', $uuid)->first()->makeVisible('support_token');
+        $admin->clients = $admin->clients->makeVisible('uuid');
+        $admin->agents = $admin->agents->makeVisible('uuid');
         return view('dashboard')->with(['admin' => $admin, 'token' => $admin->support_token]);
     }
 }

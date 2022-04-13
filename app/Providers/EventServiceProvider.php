@@ -11,7 +11,9 @@ use Aacotroneo\Saml2\Events\Saml2LogoutEvent;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Events\GuestCreated;
+use App\Events\ClientNeedsHelp;
 use App\Listeners\NotifySlayvaultOfGuestAdded;
+use App\Listeners\NotifyAgentsAboutTheIncident;
 
 use App\Models\User;
 use App\Models\Agent;
@@ -31,6 +33,7 @@ class EventServiceProvider extends ServiceProvider
         GuestCreated::class => [
             NotifySlayvaultOfGuestAdded::class
         ]
+        
     ];
 
     /**
